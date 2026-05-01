@@ -1,6 +1,7 @@
 flask>=3.0.0
+gunicorn>=20.1.0
 pymupdf>=1.23.0
 Pillow>=10.0.0
 reportlab>=4.0.0
-docx2pdf>=0.1.8
-pywin32>=306
+docx2pdf>=0.1.8; sys_platform == "win32"
+pywin32>=306; sys_platform == "win32"
