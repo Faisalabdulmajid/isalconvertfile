@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IsalConvertFile – Konversi File Online Gratis</title>
+  <meta name="description" content="Konversi PDF ke JPG, JPG ke PDF, Word ke PDF, Excel ke PDF dan banyak lagi secara gratis dan cepat." />
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="IsalConvertFile" />
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png" />
+  <link rel="icon" type="image/png" href="/static/icons/favicon.ico" />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="logo">
+      <img src="/static/icons/icon-192.png" class="logo-img" alt="icon" />
+      <span class="logo-text">IsalConvert<span class="logo-pro">File</span></span>
+    </div>
+    <div class="nav-links">
+      <a href="#tools">Tools</a>
+      <a href="#how">Cara Pakai</a>
+      <a href="#faq">FAQ</a>
+      <button class="btn-install" id="btn-install" style="display:none" title="Install sebagai aplikasi">
+        📲 Install App
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="badge">🚀 100% Gratis &amp; Aman</div>
+    <h1>Konversi File<br /><span class="gradient-text">Apapun, Kapanpun</span></h1>
+    <p class="hero-sub">PDF, Word, Excel, PowerPoint, Gambar — konversi instan langsung di browser Anda. Tidak perlu daftar, tidak ada batas.</p>
+    <a href="#tools" class="btn-primary">Mulai Konversi →</a>
+  </div>
+  <div class="hero-cards">
+    <div class="float-card">PDF → JPG</div>
+    <div class="float-card">Word → PDF</div>
+    <div class="float-card">JPG → PNG</div>
+    <div class="float-card">Excel → PDF</div>
+  </div>
+</section>
+
+<!-- ── TOOLS GRID ── -->
+<section class="tools-section" id="tools">
+  <div class="container">
+    <h2 class="section-title">Pilih Konversi</h2>
+    <p class="section-sub">Klik tool yang Anda butuhkan, upload file, dan download hasilnya.</p>
+
+    <div class="tools-grid">
+
+      <!-- PDF → Image -->
+      <div class="tool-card" data-tool="pdf-to-image">
+        <div class="tool-icon" style="background:linear-gradient(135deg,#f97316,#ef4444)">📄→🖼</div>
+        <div class="tool-info">
+          <h3>PDF ke Gambar</h3>
+          <p>Konversi setiap halaman PDF menjadi JPG atau PNG berkualitas tinggi.</p>
+          <span class="tool-tag">PDF</span><span class="tool-tag">JPG</span><span class="tool-tag">PNG</span>
+        </div>
+      </div>
+
+      <!-- Image → PDF -->
+      <div class="tool-card" data-tool="image-to-pdf">
+        <div class="tool-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🖼→📄</div>
+        <div class="tool-info">
+          <h3>Gambar ke PDF</h3>
+          <p>Gabungkan satu atau beberapa gambar menjadi satu file PDF.</p>
+          <span class="tool-tag">JPG</span><span class="tool-tag">PNG</span><span class="tool-tag">PDF</span>
+        </div>
+      </div>
+
+      <!-- Word → PDF -->
+      <div class="tool-card" data-tool="word-to-pdf">
+        <div class="tool-icon" style="background:linear-gradient(135deg,#2563eb,#06b6d4)">📝→📄</div>
+        <div class="tool-info">
+          <h3>Word ke PDF</h3>
+          <p>Konversi dokumen .docx / .doc ke format PDF yang siap cetak.</p>
+          <span class="tool-tag">DOCX</span><span class="tool-tag">PDF</span>
+        </div>
+      </div>
+
+      <!-- Word → Image -->
+      <div class="tool-card" data-tool="word-to-image">
+        <div class="tool-icon" style="background:linear-gradient(135deg,#0ea5e9,#10b981)">📝→🖼</div>
+        <div class="tool-info">
+          <h3>Word ke Gambar</h3>
+          <p>Konversi setiap halaman dokumen Word ke JPG atau PNG.</p>
+          <span class="tool-tag">DOCX</span><span class="tool-tag">JPG</span>
+        </div>
+      </div>
+
+      <!-- Excel → PDF -->
+      <div class="tool-card" data-tool="excel-to-pdf">
+        <div class="tool-icon" style="background:linear-gradient(135deg,#16a34a,#4ade80)">📊→📄</div>
+        <div class="tool-info">
+          <h3>Excel ke PDF</h3>
+          <p>Ekspor spreadsheet .xlsx / .xls ke format PDF dengan layout terjaga.</p>
+          <span class="tool-tag">XLSX</span><span class="tool-tag">PDF</span>
+        </div>
+      </div>
+
+      <!-- PPT → PDF -->
+      <div class="tool-card" data-tool="ppt-to-pdf">
+        <div class="tool-icon" style="background:linear-gradient(135deg,#f59e0b,#f97316)">📊→📄</div>
+        <div class="tool-info">
+          <h3>PowerPoint ke PDF</h3>
+          <p>Ubah presentasi .pptx menjadi PDF yang mudah dibagikan.</p>
+          <span class="tool-tag">PPTX</span><span class="tool-tag">PDF</span>
+        </div>
+      </div>
+
+      <!-- Image → Image -->
+      <div class="tool-card" data-tool="image-to-image">
+        <div class="tool-icon" style="background:linear-gradient(135deg,#ec4899,#a855f7)">🖼→🖼</div>
+        <div class="tool-info">
+          <h3>Konversi Format Gambar</h3>
+          <p>Ubah JPG ↔ PNG ↔ WebP ↔ BMP ↔ TIFF dengan mudah.</p>
+          <span class="tool-tag">JPG</span><span class="tool-tag">PNG</span><span class="tool-tag">WebP</span>
+        </div>
+      </div>
+
+      <!-- TXT → PDF -->
+      <div class="tool-card" data-tool="txt-to-pdf">
+        <div class="tool-icon" style="background:linear-gradient(135deg,#64748b,#334155)">📃→📄</div>
+        <div class="tool-info">
+          <h3>TXT ke PDF</h3>
+          <p>Konversi file teks biasa menjadi dokumen PDF yang rapi.</p>
+          <span class="tool-tag">TXT</span><span class="tool-tag">PDF</span>
+        </div>
+      </div>
+
+      <!-- PDF → TXT -->
+      <div class="tool-card" data-tool="pdf-to-txt">
+        <div class="tool-icon" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)">📄→📃</div>
+        <div class="tool-info">
+          <h3>PDF ke TXT</h3>
+          <p>Ekstrak teks dari PDF menjadi file .txt yang dapat diedit.</p>
+          <span class="tool-tag">PDF</span><span class="tool-tag">TXT</span>
+        </div>
+      </div>
+
+      <!-- Compress Image -->
+      <div class="tool-card" data-tool="compress-image">
+        <div class="tool-icon" style="background:linear-gradient(135deg,#0891b2,#0e7490)">🗜→🖼</div>
+        <div class="tool-info">
+          <h3>Kompres Gambar</h3>
+          <p>Kurangi ukuran file JPG/PNG tanpa mengorbankan kualitas visual.</p>
+          <span class="tool-tag">JPG</span><span class="tool-tag">PNG</span><span class="tool-tag">Compress</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── CONVERTER PANEL (injected by JS) ── -->
+<section class="converter-panel" id="converter-panel" style="display:none">
+  <div class="container">
+    <div class="panel-card">
+      <button class="close-btn" id="close-panel">✕</button>
+      <h2 class="panel-title" id="panel-title">Konversi File</h2>
+
+      <!-- Drop Zone -->
+      <div class="dropzone" id="dropzone">
+        <div class="drop-icon">☁️</div>
+        <p class="drop-text">Seret & lepas file di sini</p>
+        <p class="drop-sub">atau</p>
+        <label class="btn-upload" for="file-input">Pilih File</label>
+        <input type="file" id="file-input" multiple hidden />
+        <p class="drop-limit">Maks 50 MB per file</p>
+      </div>
+
+      <!-- File Preview -->
+      <div class="file-preview" id="file-preview" style="display:none">
+        <div class="file-info" id="file-info"></div>
+        <button class="btn-remove" id="btn-remove">🗑 Hapus</button>
+      </div>
+
+      <!-- Options -->
+      <div class="options-row" id="options-row"></div>
+
+      <!-- Convert Button -->
+      <button class="btn-convert" id="btn-convert" disabled>
+        <span id="btn-label">⚡ Konversi Sekarang</span>
+        <span class="spinner" id="spinner" style="display:none"></span>
+      </button>
+
+      <!-- Error -->
+      <div class="error-box" id="error-box" style="display:none"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW TO USE ── -->
+<section class="how-section" id="how">
+  <div class="container">
+    <h2 class="section-title">Cara Menggunakan</h2>
+    <div class="steps-grid">
+      <div class="step"><div class="step-num">1</div><h4>Pilih Tool</h4><p>Klik jenis konversi yang Anda butuhkan dari daftar di atas.</p></div>
+      <div class="step"><div class="step-num">2</div><h4>Upload File</h4><p>Seret &amp; lepas atau klik tombol untuk memilih file dari komputer Anda.</p></div>
+      <div class="step"><div class="step-num">3</div><h4>Konversi</h4><p>Klik tombol konversi dan tunggu prosesnya selesai dalam hitungan detik.</p></div>
+      <div class="step"><div class="step-num">4</div><h4>Download</h4><p>File hasil konversi langsung terunduh otomatis ke komputer Anda.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section class="faq-section" id="faq">
+  <div class="container">
+    <h2 class="section-title">Pertanyaan Umum</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q">Apakah file saya aman? <span>+</span></button>
+        <div class="faq-a">File diproses secara lokal di server dan otomatis dihapus setelah 5 menit. Kami tidak menyimpan konten file Anda.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Berapa batas ukuran file? <span>+</span></button>
+        <div class="faq-a">Maksimal 50 MB per file. Untuk file lebih besar, disarankan mengompresi terlebih dahulu.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Apakah gratis sepenuhnya? <span>+</span></button>
+        <div class="faq-a">Ya! Semua fitur konversi tersedia gratis tanpa perlu mendaftar atau membayar.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Kenapa Word ke PDF butuh MS Office? <span>+</span></button>
+        <div class="faq-a">Untuk hasil terbaik dengan format yang terjaga, konversi Word memanfaatkan Microsoft Office yang terinstal di server. Pastikan dependensi terpasang.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div class="container">
+    <div class="logo">⚡ IsalConvert<span class="logo-pro">File</span></div>
+    <p>© 2026 IsalConvertFile. Dibuat dengan ❤️ untuk kemudahan Anda.</p>
+    <p style="margin-top: 12px; font-size: 0.85rem;">
+      Ada masalah atau butuh bantuan? Hubungi via Gmail: 
+      <a href="https://mail.google.com/mail/?view=cm&fs=1&to=faisalabdulmajid.dev@gmail.com" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 600;">faisalabdulmajid.dev@gmail.com</a>
+    </p>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+<!-- PWA: Service Worker Registration -->
+<script>
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .then(reg => console.log('[SW] Registered, scope:', reg.scope))
+        .catch(err => console.warn('[SW] Registration failed:', err));
+    });
+  }
+
+  // PWA Install Prompt
+  let deferredPrompt = null;
+  const btnInstall = document.getElementById('btn-install');
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    btnInstall.style.display = 'inline-flex';
+  });
+
+  btnInstall.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log('[PWA] Install outcome:', outcome);
+    deferredPrompt = null;
+    btnInstall.style.display = 'none';
+  });
+
+  window.addEventListener('appinstalled', () => {
+    btnInstall.style.display = 'none';
+    console.log('[PWA] App installed!');
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{
+  "name": "IsalConvertFile",
+  "short_name": "IsalConvert",
+  "description": "Konversi PDF, Word, Excel, Gambar dan berbagai format file secara offline",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#6366f1",
+  "orientation": "any",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "/static/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity"],
+  "shortcuts": [
+    {
+      "name": "PDF ke Gambar",
+      "url": "/#tools",
+      "description": "Konversi PDF ke JPG/PNG"
+    },
+    {
+      "name": "Gambar ke PDF",
+      "url": "/#tools",
+      "description": "Gabungkan gambar menjadi PDF"
+    }
+  ]
+}
