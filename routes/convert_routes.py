@@ -1,9 +1,13 @@
 import os
 import io
+import shutil
 import zipfile
 import uuid
 import time
 import threading
+import platform
+import subprocess
+import tempfile
 from flask import Blueprint, request, jsonify, send_file, current_app, render_template
 from werkzeug.utils import secure_filename
 
@@ -64,6 +68,141 @@ def save_upload(f):
             pass
     threading.Thread(target=_del, daemon=True).start()
     return path
+
+# ─── SMART OFFICE CONVERTER ──────────────────────────────────────────────────
+
+def find_libreoffice():
+    """Find the LibreOffice / soffice executable path on any OS."""
+    # Common names tried via PATH
+    for cmd in ['libreoffice', 'soffice']:
+        found = shutil.which(cmd)
+        if found:
+            return found
+    # Windows fallback: check common install paths
+    if platform.system() == 'Windows':
+        win_paths = [
+            r'C:\Program Files\LibreOffice\program\soffice.exe',
+            r'C:\Program Files (x86)\LibreOffice\program\soffice.exe',
+        ]
+        for p in win_paths:
+            if os.path.exists(p):
+                return p
+    return None
+
+
+def _convert_with_ms_office(input_path: str, out_dir: str, app_type: str):
+    """
+    Convert Office file to PDF using Microsoft Office COM automation.
+    Only available on Windows with MS Office installed.
+    Returns (success: bool, pdf_path_or_error: str)
+    """
+    if platform.system() != 'Windows':
+        return False, 'MS Office COM automation hanya tersedia di Windows.'
+    try:
+        import win32com.client
+        abs_input  = os.path.abspath(input_path)
+        abs_out    = os.path.abspath(out_dir)
+        base_stem  = os.path.splitext(os.path.basename(input_path))[0]
+        out_pdf    = os.path.join(abs_out, base_stem + '.pdf')
+
+        if app_type == 'word':
+            app = win32com.client.Dispatch('Word.Application')
+            app.Visible = False
+            doc = app.Documents.Open(abs_input)
+            doc.SaveAs(out_pdf, FileFormat=17)   # 17 = wdFormatPDF
+            doc.Close(False)
+            app.Quit()
+        elif app_type == 'excel':
+            app = win32com.client.Dispatch('Excel.Application')
+            app.Visible = False
+            wb = app.Workbooks.Open(abs_input)
+            wb.ExportAsFixedFormat(0, out_pdf)   # 0 = xlTypePDF
+            wb.Close(False)
+            app.Quit()
+        elif app_type == 'ppt':
+            app = win32com.client.Dispatch('PowerPoint.Application')
+            app.Visible = 1
+            pres = app.Presentations.Open(abs_input, WithWindow=False)
+            pres.SaveAs(out_pdf, 32)             # 32 = ppSaveAsPDF
+            pres.Close()
+            app.Quit()
+        else:
+            return False, f'app_type tidak dikenal: {app_type}'
+
+        if os.path.exists(out_pdf):
+            return True, out_pdf
+        return False, 'File PDF tidak terbentuk oleh MS Office.'
+    except ImportError:
+        return False, 'pywin32 tidak terinstall.'
+    except Exception as e:
+        return False, str(e)
+
+
+def _convert_with_libreoffice(input_path: str, out_dir: str):
+    """
+    Convert Office file to PDF using LibreOffice in headless mode.
+    Works on Linux (hosting) and Windows (if LibreOffice is installed).
+    Returns (success: bool, pdf_path_or_error: str)
+    """
+    lo = find_libreoffice()
+    if not lo:
+        return False, (
+            'LibreOffice tidak ditemukan. '
+            'Install LibreOffice (Linux: apt install libreoffice / '
+            'Windows: https://www.libreoffice.org).'
+        )
+    try:
+        abs_input = os.path.abspath(input_path)
+        abs_out   = os.path.abspath(out_dir)
+        result = subprocess.run(
+            [lo, '--headless', '--convert-to', 'pdf', '--outdir', abs_out, abs_input],
+            capture_output=True, text=True, timeout=120
+        )
+        base_stem = os.path.splitext(os.path.basename(input_path))[0]
+        out_pdf   = os.path.join(abs_out, base_stem + '.pdf')
+        if result.returncode != 0 or not os.path.exists(out_pdf):
+            err = result.stderr or result.stdout or 'LibreOffice gagal.'
+            return False, err
+        return True, out_pdf
+    except subprocess.TimeoutExpired:
+        return False, 'Konversi timeout (120 detik). File mungkin terlalu besar.'
+    except Exception as e:
+        return False, str(e)
+
+
+def office_to_pdf(input_path: str, app_type: str = 'word'):
+    """
+    Smart converter: MS Office (win32com) first on Windows, else LibreOffice headless.
+    app_type: 'word' | 'excel' | 'ppt'
+    Returns (success: bool, pdf_path_or_error: str)
+    Caller is responsible for cleaning up the temp_dir.
+    """
+    # Use a dedicated temp dir inside outputs so LibreOffice writes there
+    output_folder = current_app.config.get('OUTPUT_FOLDER', 'outputs')
+    os.makedirs(output_folder, exist_ok=True)
+    temp_dir = tempfile.mkdtemp(dir=output_folder)
+
+    # 1️⃣  Try Microsoft Office (Windows only)
+    if platform.system() == 'Windows':
+        success, result = _convert_with_ms_office(input_path, temp_dir, app_type)
+        if success:
+            # Move to a UUID-named file to avoid collisions
+            final = os.path.join(output_folder, f'{uuid.uuid4().hex}.pdf')
+            shutil.move(result, final)
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            return True, final
+        # MS Office not available / failed → fall through to LibreOffice
+
+    # 2️⃣  Fallback: LibreOffice headless
+    success, result = _convert_with_libreoffice(input_path, temp_dir)
+    if success:
+        final = os.path.join(output_folder, f'{uuid.uuid4().hex}.pdf')
+        shutil.move(result, final)
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        return True, final
+
+    shutil.rmtree(temp_dir, ignore_errors=True)
+    return False, result
 
 # ─── ROUTES ──────────────────────────────────────────────────────────────────
 
@@ -183,19 +322,13 @@ def word_to_pdf():
         return jsonify({'error': 'File harus .doc atau .docx'}), 400
 
     input_path = save_upload(f)
-    out_name = f"{uuid.uuid4().hex}.pdf"
-    out_path = get_output_path(out_name)
+    success, result = office_to_pdf(input_path, app_type='word')
+    if not success:
+        return jsonify({'error': result}), 500
 
-    try:
-        from docx2pdf import convert
-        convert(input_path, out_path)
-        dl_name = 'dokumen_word.pdf'
-        token = register_download(out_path, dl_name)
-        return jsonify({'token': token, 'filename': dl_name})
-    except ImportError:
-        return jsonify({'error': 'docx2pdf tidak terinstall. Run: pip install docx2pdf'}), 500
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    dl_name = 'dokumen_word.pdf'
+    token = register_download(result, dl_name)
+    return jsonify({'token': token, 'filename': dl_name})
 
 # ── Word (DOCX) → Image ───────────────────────────────────────────────────────
 @convert_bp.route('/convert/word-to-image', methods=['POST'])
@@ -209,12 +342,15 @@ def word_to_image():
         return jsonify({'error': 'File harus .doc atau .docx'}), 400
 
     input_path = save_upload(f)
-    pdf_path = get_output_path(f"{uuid.uuid4().hex}_temp.pdf")
 
+    # Step 1: DOCX → PDF (MS Office or LibreOffice)
+    success, pdf_path = office_to_pdf(input_path, app_type='word')
+    if not success:
+        return jsonify({'error': pdf_path}), 500
+
+    # Step 2: PDF → Images via PyMuPDF
     try:
-        from docx2pdf import convert
         import fitz
-        convert(input_path, pdf_path)
         doc = fitz.open(pdf_path)
         zip_buf = io.BytesIO()
         with zipfile.ZipFile(zip_buf, 'w', zipfile.ZIP_DEFLATED) as zf:
@@ -231,8 +367,8 @@ def word_to_image():
         dl_name = 'word_ke_gambar.zip'
         token = register_bytes_download(zip_buf.getvalue(), dl_name)
         return jsonify({'token': token, 'filename': dl_name})
-    except ImportError as e:
-        return jsonify({'error': f'Library kurang: {e}. Run: pip install docx2pdf pymupdf'}), 500
+    except ImportError:
+        return jsonify({'error': 'PyMuPDF tidak terinstall. Run: pip install pymupdf'}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -246,22 +382,13 @@ def excel_to_pdf():
         return jsonify({'error': 'File harus .xls atau .xlsx'}), 400
 
     input_path = save_upload(f)
-    out_name = f"{uuid.uuid4().hex}.pdf"
-    out_path = get_output_path(out_name)
+    success, result = office_to_pdf(input_path, app_type='excel')
+    if not success:
+        return jsonify({'error': result}), 500
 
-    try:
-        import win32com.client
-        excel = win32com.client.Dispatch("Excel.Application")
-        excel.Visible = False
-        wb = excel.Workbooks.Open(os.path.abspath(input_path))
-        wb.ExportAsFixedFormat(0, os.path.abspath(out_path))
-        wb.Close(False)
-        excel.Quit()
-        dl_name = 'spreadsheet.pdf'
-        token = register_download(out_path, dl_name)
-        return jsonify({'token': token, 'filename': dl_name})
-    except Exception as e:
-        return jsonify({'error': f'Konversi gagal: {e}. Pastikan MS Excel terinstall.'}), 500
+    dl_name = 'spreadsheet.pdf'
+    token = register_download(result, dl_name)
+    return jsonify({'token': token, 'filename': dl_name})
 
 # ── PowerPoint → PDF ─────────────────────────────────────────────────────────
 @convert_bp.route('/convert/ppt-to-pdf', methods=['POST'])
@@ -273,22 +400,13 @@ def ppt_to_pdf():
         return jsonify({'error': 'File harus .ppt atau .pptx'}), 400
 
     input_path = save_upload(f)
-    out_name = f"{uuid.uuid4().hex}.pdf"
-    out_path = get_output_path(out_name)
+    success, result = office_to_pdf(input_path, app_type='ppt')
+    if not success:
+        return jsonify({'error': result}), 500
 
-    try:
-        import win32com.client
-        ppt = win32com.client.Dispatch("PowerPoint.Application")
-        ppt.Visible = 1
-        pres = ppt.Presentations.Open(os.path.abspath(input_path), WithWindow=False)
-        pres.SaveAs(os.path.abspath(out_path), 32)
-        pres.Close()
-        ppt.Quit()
-        dl_name = 'presentasi.pdf'
-        token = register_download(out_path, dl_name)
-        return jsonify({'token': token, 'filename': dl_name})
-    except Exception as e:
-        return jsonify({'error': f'Konversi gagal: {e}. Pastikan MS PowerPoint terinstall.'}), 500
+    dl_name = 'presentasi.pdf'
+    token = register_download(result, dl_name)
+    return jsonify({'token': token, 'filename': dl_name})
 
 # ── Image → Image ─────────────────────────────────────────────────────────────
 @convert_bp.route('/convert/image-to-image', methods=['POST'])
