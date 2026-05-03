@@ -4,7 +4,10 @@
   <p>Aplikasi Konversi Berbagai Format File Secara Mudah, Cepat, dan Offline (PWA).</p>
 </div>
 
+![Preview Tampilan](static/preview.png)
+
 ---
+
 
 ## ✨ Fitur Utama
 
