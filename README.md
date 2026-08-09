@@ -34,29 +34,79 @@
 
 ### Persyaratan Sistem
 - Python 3.8 atau lebih baru.
-- Microsoft Office (Word, Excel, PowerPoint) terinstal di sistem Windows Anda (Wajib untuk mengonversi dokumen office ke PDF/Image).
+- Microsoft Office (Word, Excel, PowerPoint) terinstal di sistem Windows Anda.
+- Windows 10/11 direkomendasikan untuk dukungan penuh.
 
-### Langkah-langkah
-1. **Clone repositori ini:**
-   ```bash
-   git clone git@github.com:Faisalabdulmajid/isalconvertfile.git
-   cd isalconvertfile
+### Langkah 1: Siapkan Virtual Environment (Direkomendasikan)
+1. Buka PowerShell, lalu masuk ke folder proyek:
+   ```powershell
+   cd F:\project\convert
+   ```
+2. Buat virtual environment baru:
+   ```powershell
+   python -m venv .venv
+   ```
+3. Aktifkan virtual environment:
+   ```powershell
+   .\.venv\Scripts\Activate.ps1
    ```
 
-2. **Install dependensi (Library Python):**
-   ```bash
-   pip install -r requirements.txt
-   ```
+> Jika perintah `python` tidak tersedia, ganti dengan path Python yang valid atau `py`.
 
-3. **Jalankan Aplikasi:**
-   - **Bagi pengguna Windows:** Cukup klik ganda file `start.bat`.
-   - **Secara manual via terminal:**
-     ```bash
-     python app.py
-     ```
+### Langkah 2: Install Dependensi Python
+Setelah virtual environment aktif, jalankan:
 
-4. **Akses & Install PWA:**
-   Buka browser Anda dan navigasikan ke `http://127.0.0.1:5000`. Klik tombol **"📲 Install App"** di pojok kanan atas untuk mengubahnya menjadi aplikasi desktop native.
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+> Jika menggunakan lingkungan Python yang dikelola (`uv`), pastikan Anda sudah membuat dan mengaktifkan virtual environment seperti di atas.
+
+### Langkah 3: Jalankan Aplikasi
+Dengan virtual environment aktif, jalankan:
+
+```powershell
+python app.py
+```
+
+Atau jalankan `start.bat` dari folder proyek:
+
+```powershell
+.\start.bat
+```
+
+### Langkah 4: Akses Aplikasi
+Buka browser dan kunjungi:
+
+```
+http://127.0.0.1:5000
+```
+
+Jika muncul halaman aplikasi, berarti server berjalan.
+
+### Langkah 5: Install PWA (Opsional)
+Jika browser menampilkan notifikasi PWA, klik **"Install App"** atau ikon install untuk memasang aplikasi sebagai native app.
+
+### Cara Penggunaan
+1. Pilih jenis konversi yang diinginkan (misalnya PDF ke JPG, Word ke PDF, atau kompresi gambar).
+2. Unggah file sumber dari komputer Anda.
+3. Klik tombol proses/convert.
+4. Tunggu sampai hasil selesai diproses.
+5. Unduh file hasil konversi ke komputer Anda.
+
+### Troubleshooting
+- Jika perintah `python` tidak dikenali:
+  - Pastikan Python sudah terinstall dan PATH sudah benar.
+  - Gunakan `py -3` jika `python` tidak tersedia.
+- Jika muncul error `externally-managed-environment` saat install pip:
+  - Gunakan virtual environment seperti langkah di atas.
+- Jika `Activate.ps1` tidak bisa dijalankan karena kebijakan PowerShell:
+  ```powershell
+  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+  .\.venv\Scripts\Activate.ps1
+  ```
+- Jika aplikasi tidak muncul di browser, pastikan proses `python app.py` berjalan dan tidak ada error di terminal.
 
 ---
 *Dibuat dengan ❤️ oleh [Faisal Abdul Majid](mailto:faisalabdulmajid.dev@gmail.com).*
